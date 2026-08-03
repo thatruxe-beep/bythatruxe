@@ -26,7 +26,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-VPNGATE_API_URL = 'http://www.vpngate.net/api/iphone/'
+VPNGATE_API_URL = 'https://www.vpngate.net/api/iphone/'
 IP_CHECK_URL = 'https://api.ipify.org'
 
 # Соответствие номера региона -> код страны ISO
@@ -125,7 +125,7 @@ class VPNManager:
     # ------------------------------------------------------------------ #
     # Получение списка серверов
     # ------------------------------------------------------------------ #
-    def fetch_servers(self, country: str, retries: int = 3) -> list:
+    def fetch_servers(self, country: str, retries: int = 5) -> list:
         """
         Получает и фильтрует список серверов из vpngate API.
 
@@ -135,7 +135,7 @@ class VPNManager:
         """
         for attempt in range(1, retries + 1):
             try:
-                resp = requests.get(VPNGATE_API_URL, timeout=20)
+                resp = requests.get(VPNGATE_API_URL, timeout=40)
                 resp.raise_for_status()
                 servers = self._parse_csv(resp.text)
                 filtered = [s for s in servers if s.get('country_short') == country]
