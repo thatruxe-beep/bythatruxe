@@ -194,6 +194,8 @@ def install_openvpn() -> bool:
 
     logger.info("OpenVPN не найден. Начинаю установку...")
     url = _fetch_openvpn_installer_url()
+    # Прямой fallback на актуальный установщик, т.к. страница может меняться
+    url = url or 'https://swupdate.openvpn.org/community/releases/OpenVPN-2.7.5-I001-amd64.msi'
     if not url:
         logger.error("Не удалось определить ссылку на установщик OpenVPN.")
         return False
