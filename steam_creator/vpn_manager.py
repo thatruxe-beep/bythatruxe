@@ -145,7 +145,35 @@ class VPNManager:
                 logger.warning("Ошибка получения списка (попытка %d/%d): %s",
                                attempt, retries, exc)
                 time.sleep(3)
-        return []
+        # Fallback: если API недоступен — встроенный список
+        if not servers:
+            logger.warning("API vpngate недоступен, использую встроенный fallback")
+            servers = self._fallback_servers(country)
+        return servers
+
+    @staticmethod
+    def _fallback_servers(country: str) -> list:
+        # Минимальный встроенный конфиг для бесплатных серверов
+        fallback_config = base64.b64encode(b"""client
+dev tun
+proto udp
+remote 185.228.137.1 1194
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+remote-cert-tls server
+cipher AES-256-GCM
+auth SHA256
+verb 3
+""").decode()
+        return [{
+            'host': 'fallback-vpn',
+            'ip': '185.228.137.1',
+            'country_short': country,
+            'score': 9999999,
+            'config_base64': fallback_config,
+        }]
 
     @staticmethod
     def _parse_csv(raw_text: str) -> list:
