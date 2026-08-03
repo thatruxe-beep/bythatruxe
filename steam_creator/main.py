@@ -125,7 +125,7 @@ OPENVPN_EXE_HINTS = [
     r"C:\Program Files (x86)\OpenVPN\bin\openvpn.exe",
 ]
 
-OPENVPN_DOWNLOAD_PAGE = 'https://openvpn.net/community-downloads/'
+OPENVPN_DOWNLOAD_PAGE = 'https://openvpn.net/community/'
 
 
 def _find_openvpn() -> str:
@@ -149,10 +149,10 @@ def _fetch_openvpn_installer_url() -> str:
         import requests
         resp = requests.get(OPENVPN_DOWNLOAD_PAGE, timeout=30)
         resp.raise_for_status()
-        # Ищем ссылку на amd64 .exe установщик
+        # Ищем ссылку на amd64 .msi (или .exe) установщик
         patterns = [
-            r'https?://[^\s"\'<>]+openvpn-install-[\w.\-]+-amd64\.exe',
-            r'openvpn-install-[\w.\-]+-amd64\.exe',
+            r'https?://[^\s"\'<>]+openvpn[\w.\-]*-amd64\.msi',
+            r'https?://[^\s"\'<>]+openvpn-install-[\w.\-]+-amd64\.(?:msi|exe)',
         ]
         for pat in patterns:
             match = re.search(pat, resp.text)
@@ -198,13 +198,17 @@ def install_openvpn() -> bool:
         logger.error("Не удалось определить ссылку на установщик OpenVPN.")
         return False
 
-    installer = BASE_DIR / 'openvpn_installer.exe'
+    ext = '.msi' if url.endswith('.msi') else '.exe'
+    installer = BASE_DIR / f'openvpn_installer{ext}'
     if not _download_file(url, installer):
         logger.error("Не удалось скачать установщик OpenVPN.")
         return False
 
-    # Тихая установка: /S — silent
-    flags = [str(installer), '/S']
+    # Тихая установка
+    if str(installer).endswith('.msi'):
+        flags = ['msiexec', '/i', str(installer), '/quiet', '/norestart']
+    else:
+        flags = [str(installer), '/S']
     try:
         logger.info("Тихая установка OpenVPN (/S)...")
         result = subprocess.run(
