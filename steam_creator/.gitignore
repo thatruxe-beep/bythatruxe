@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.chrome_profile/
+app.log
+accounts.txt
+errors.txt
+openvpn_installer.exe
