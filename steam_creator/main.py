@@ -445,4 +445,15 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as exc:
+        print(f"\n❌ Критическая ошибка: {exc}\n")
+        import traceback
+        traceback.print_exc()
+    finally:
+        print("\nНажмите Enter для выхода...")
+        input()
+        # Защита от мгновенного закрытия консоли
+        import time
+        time.sleep(2)
