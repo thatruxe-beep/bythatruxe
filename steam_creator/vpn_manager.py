@@ -133,6 +133,7 @@ class VPNManager:
         :param retries: количество повторных попыток при сбое сети.
         :return: список словарей с ключами host, ip, country_short, config_base64.
         """
+        servers = []
         for attempt in range(1, retries + 1):
             try:
                 resp = requests.get(VPNGATE_API_URL, timeout=40)
