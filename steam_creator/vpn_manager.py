@@ -244,8 +244,9 @@ verb 3
         """Запускает OpenVPN CLI в фоне (--daemon)."""
         if not self._config_path:
             raise RuntimeError("Нет конфига для запуска OpenVPN")
+        openvpn_path = shutil.which('openvpn') or (r"C:\Program Files\OpenVPN\bin\openvpn.exe" if os.path.exists(r"C:\Program Files\OpenVPN\bin\openvpn.exe") else 'openvpn')
         subprocess.run(
-            ['openvpn', '--config', self._config_path, '--daemon'],
+            [openvpn_path, '--config', self._config_path, '--daemon'],
             capture_output=True, text=True,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
